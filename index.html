@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>J.A.R.V.I.S. // Adukkathil Industries</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="grid-bg"></div>
+
+  <!-- SECURITY GATE OVERLAY (PIN + ACCESS TOKEN ENTRY) -->
+  <div id="lock-screen" class="overlay">
+    <div class="hud-card lock-box">
+      <div class="arc-ring">
+        <div class="arc-core"></div>
+      </div>
+      <div class="sys-tag">ADUKKATHIL INDUSTRIES // DEFENSE PROTOCOL</div>
+      <h1>MAINFRAME ACCESS</h1>
+      <p class="subtext">Encrypted Uplink • Authorization Required</p>
+
+      <div class="input-group">
+        <label for="pin-input">SECURITY PIN</label>
+        <input id="pin-input" type="password" inputmode="numeric" maxlength="8" placeholder="••••" autocomplete="off" />
+      </div>
+
+      <div class="input-group">
+        <label for="endpoint-input">NEURAL CORE ENDPOINT</label>
+        <input id="endpoint-input" type="url" value="https://api.abenbinu.com" />
+      </div>
+
+      <button id="unlock-btn" class="primary-btn">INITIALIZE UPLINK</button>
+      <div id="auth-error" class="error-msg"></div>
+    </div>
+  </div>
+
+  <!-- MAIN TACTICAL CONSOLE -->
+  <main id="console-ui" class="console-container hidden">
+    <header class="hud-header">
+      <div class="brand">
+        <span class="pulse-dot" id="status-dot"></span>
+        <div>
+          <div class="title">J.A.R.V.I.S.</div>
+          <div class="meta" id="telemetry-bar">LINK: STANDBY • CORE: RTX 4060</div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button id="tts-toggle" class="icon-btn active" title="Toggle Voice Output">🔊 VOICE ON</button>
+        <button id="lock-btn" class="icon-btn danger" title="Lock Console">🔒 LOCK</button>
+      </div>
+    </header>
+
+    <section id="chat-stream" class="chat-stream">
+      <div class="msg system">
+        <div class="bubble">Encrypted channel established, sir. Mainframe telemetry synchronized.</div>
+      </div>
+    </section>
+
+    <footer class="hud-footer">
+      <div class="quick-chips">
+        <button class="chip" data-cmd="System diagnostic report.">Diagnostics</button>
+        <button class="chip" data-cmd="Open the Mark 95 faceplate.">Open Mask</button>
+        <button class="chip" data-cmd="Close the Mark 95 faceplate.">Close Mask</button>
+      </div>
+      <div class="composer">
+        <button id="mic-btn" class="mic-btn" title="Voice Input">🎙️</button>
+        <input id="prompt-input" type="text" placeholder="Enter directive, sir..." autocomplete="off" />
+        <button id="send-btn" class="send-btn">SEND</button>
+      </div>
+    </footer>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
