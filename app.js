@@ -16,6 +16,12 @@ const statusDot = document.getElementById("status-dot");
 
 let voiceEnabled = true;
 
+function setOrbState(state) {
+  if (typeof window.setJarvisOrbMode === "function") {
+    window.setJarvisOrbMode(state);
+  }
+}
+
 // Restore session if already authenticated in this browser tab
 window.addEventListener("DOMContentLoaded", () => {
   const savedPin = sessionStorage.getItem("jarvis_pin");
@@ -53,6 +59,10 @@ async function verifyAndUnlock(pin, apiUrl, silent) {
     statusDot.classList.remove("offline");
     telemetryBar.textContent = `LINK: ENCRYPTED • DOCS INDEXED: ${info.docs_indexed ?? "ACTIVE"} • RTX 4060`;
     authError.textContent = "";
+    setOrbState("idle");
+
+    // Trigger resize so Three.js canvas fits the newly unhidden container
+    window.dispatchEvent(new Event("resize"));
   } catch (err) {
     sessionStorage.removeItem("jarvis_pin");
     authError.textContent = "ACCESS DENIED: INVALID PIN OR MAINFRAME OFFLINE";
@@ -62,12 +72,18 @@ async function verifyAndUnlock(pin, apiUrl, silent) {
 lockBtn.addEventListener("click", () => {
   sessionStorage.removeItem("jarvis_pin");
   pinInput.value = "";
+  window.speechSynthesis?.cancel();
+  setOrbState("idle");
   consoleUI.classList.add("hidden");
   lockScreen.classList.remove("hidden");
 });
 
 ttsToggle.addEventListener("click", () => {
   voiceEnabled = !voiceEnabled;
+  if (!voiceEnabled) {
+    window.speechSynthesis?.cancel();
+    setOrbState("idle");
+  }
   ttsToggle.textContent = voiceEnabled ? "🔊 VOICE ON" : "🔇 MUTED";
 });
 
@@ -91,15 +107,24 @@ function appendMessage(role, text, metaBadge = "") {
 }
 
 function speakBritish(text) {
-  if (!voiceEnabled || !("speechSynthesis" in window)) return;
+  if (!voiceEnabled || !("speechSynthesis" in window) || !text) {
+    setOrbState("idle");
+    return;
+  }
   window.speechSynthesis.cancel();
   const utter = new SpeechSynthesisUtterance(text);
   const voices = window.speechSynthesis.getVoices();
-  const ukVoice = voices.find((v) => v.lang === "en-GB" && v.name.includes("Daniel")) ||
-                  voices.find((v) => v.lang === "en-GB");
+  const ukVoice =
+    voices.find((v) => v.lang === "en-GB" && v.name.includes("Daniel")) ||
+    voices.find((v) => v.lang === "en-GB");
   if (ukVoice) utter.voice = ukVoice;
   utter.pitch = 0.88;
   utter.rate = 1.02;
+
+  utter.onstart = () => setOrbState("speaking");
+  utter.onend = () => setOrbState("idle");
+  utter.onerror = () => setOrbState("idle");
+
   window.speechSynthesis.speak(utter);
 }
 
@@ -110,6 +135,7 @@ async function sendDirective(customText = null) {
 
   appendMessage("user", text);
   const botBubble = appendMessage("jarvis", "Processing neural telemetry...");
+  setOrbState("thinking");
 
   const pin = sessionStorage.getItem("jarvis_pin");
   const apiUrl = sessionStorage.getItem("jarvis_api");
@@ -128,6 +154,7 @@ async function sendDirective(customText = null) {
     });
 
     if (res.status === 401) {
+      setOrbState("idle");
       botBubble.textContent = "Security session expired. Please re-authenticate.";
       return;
     }
@@ -146,6 +173,7 @@ async function sendDirective(customText = null) {
     speakBritish(data.reply);
   } catch (e) {
     statusDot.classList.add("offline");
+    setOrbState("idle");
     botBubble.textContent = "Mainframe uplink interrupted. Verify HP Omen tunnel status.";
   }
 }
