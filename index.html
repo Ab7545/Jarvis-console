@@ -34,14 +34,14 @@
     </div>
   </div>
 
-  <!-- MAIN TACTICAL CONSOLE -->
+  <!-- MAIN TACTICAL CONSOLE (LEFT: 3D J.A.R.V.I.S. CORE / RIGHT: TEXT CHAT) -->
   <main id="console-ui" class="console-container hidden">
     <header class="hud-header">
       <div class="brand">
         <span class="pulse-dot" id="status-dot"></span>
         <div>
           <div class="title">J.A.R.V.I.S.</div>
-          <div class="meta" id="telemetry-bar">LINK: STANDBY • CORE: RTX 4060</div>
+          <div class="meta" id="telemetry-bar">LINK: ENCRYPTED • DOCS INDEXED: ACTIVE • RTX 4060</div>
         </div>
       </div>
       <div class="header-actions">
@@ -50,26 +50,41 @@
       </div>
     </header>
 
-    <section id="chat-stream" class="chat-stream">
-      <div class="msg system">
-        <div class="bubble">Encrypted channel established, sir. Mainframe telemetry synchronized.</div>
-      </div>
-    </section>
+    <div class="split-workspace">
+      <!-- LEFT SIDE: 3D J.A.R.V.I.S. GRAPHIC CIRCLE / CORE -->
+      <aside class="orb-panel">
+        <div id="jarvis-3d-canvas" class="orb-canvas"></div>
+        <div class="orb-readout">
+          <div id="orb-state-label" class="orb-state">CORE STANDBY</div>
+          <div class="orb-sub">WEBGL 3D CORE • CLIENT GPU</div>
+        </div>
+      </aside>
 
-    <footer class="hud-footer">
-      <div class="quick-chips">
-        <button class="chip" data-cmd="System diagnostic report.">Diagnostics</button>
-        <button class="chip" data-cmd="Open the Mark 95 faceplate.">Open Mask</button>
-        <button class="chip" data-cmd="Close the Mark 95 faceplate.">Close Mask</button>
-      </div>
-      <div class="composer">
-        <button id="mic-btn" class="mic-btn" title="Voice Input">🎙️</button>
-        <input id="prompt-input" type="text" placeholder="Enter directive, sir..." autocomplete="off" />
-        <button id="send-btn" class="send-btn">SEND</button>
-      </div>
-    </footer>
+      <!-- RIGHT SIDE: TEXT CHAT & DIRECTIVES -->
+      <section class="chat-panel">
+        <section id="chat-stream" class="chat-stream">
+          <div class="msg system">
+            <div class="bubble">Encrypted channel established, sir. Mainframe telemetry synchronized.</div>
+          </div>
+        </section>
+
+        <footer class="hud-footer">
+          <div class="quick-chips">
+            <button class="chip" data-cmd="System diagnostic report.">Diagnostics</button>
+            <button class="chip" data-cmd="Open the Mark 95 faceplate.">Open Mask</button>
+            <button class="chip" data-cmd="Close the Mark 95 faceplate.">Close Mask</button>
+          </div>
+          <div class="composer">
+            <button id="mic-btn" class="mic-btn" title="Voice Input">🎙️</button>
+            <input id="prompt-input" type="text" placeholder="Enter directive, sir..." autocomplete="off" />
+            <button id="send-btn" class="send-btn">SEND</button>
+          </div>
+        </footer>
+      </section>
+    </div>
   </main>
 
+  <script type="module" src="orb3d.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
