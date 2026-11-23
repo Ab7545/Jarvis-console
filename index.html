@@ -4,20 +4,28 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>J.A.R.V.I.S. // Adukkathil Industries</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Orbitron:wght@500;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="grid-bg"></div>
+  <div class="hud-grid-bg"></div>
+  <div class="hud-scanline"></div>
 
-  <!-- SECURITY GATE OVERLAY (PIN + ACCESS TOKEN ENTRY) -->
+  <!-- =========================================================================
+       SECTION 1: SECURITY GATE OVERLAY (PIN + NEURAL CORE ENDPOINT)
+       ========================================================================= -->
   <div id="lock-screen" class="overlay">
     <div class="hud-card lock-box">
-      <div class="arc-ring">
+      <div class="arc-reactor-badge">
+        <div class="arc-ring-outer"></div>
+        <div class="arc-ring-inner"></div>
         <div class="arc-core"></div>
       </div>
-      <div class="sys-tag">ADUKKATHIL INDUSTRIES  ( classified protocol ) </div>
-      <h1>MAINFRAME ACCESS</h1>
-      <p class="subtext">Encrypted Uplink • Authorization Required</p>
+      <div class="sys-tag">ADUKKATHIL INDUSTRIES // CLASSIFIED PROTOCOL</div>
+      <h1>J.A.R.V.I.S. UPLINK</h1>
+      <p class="subtext">Encrypted Channel • Biometric / PIN Authorization</p>
 
       <div class="input-group">
         <label for="pin-input">SECURITY PIN</label>
@@ -34,14 +42,20 @@
     </div>
   </div>
 
-  <!-- MAIN TACTICAL CONSOLE (LEFT: 3D J.A.R.V.I.S. CORE / RIGHT: TEXT CHAT) -->
+  <!-- =========================================================================
+       MAIN TACTICAL CONSOLE (70% 3D CORE LEFT / 30% CHAT & CONTROLS RIGHT)
+       ========================================================================= -->
   <main id="console-ui" class="console-container hidden">
+
+    <!-- -----------------------------------------------------------------------
+         SECTION 2: TOP TELEMETRY & COMMAND BAR
+         ----------------------------------------------------------------------- -->
     <header class="hud-header">
       <div class="brand">
         <span class="pulse-dot" id="status-dot"></span>
         <div>
-          <div class="title">J.A.R.V.I.S.</div>
-          <div class="meta" id="telemetry-bar">LINK: ENCRYPTED • DOCS INDEXED: ACTIVE • RTX 4060</div>
+          <div class="title">J.A.R.V.I.S. <span class="ver-tag">MARK 95 CORE</span></div>
+          <div class="meta" id="telemetry-bar">LINK: STANDBY • CORE: RTX 4060</div>
         </div>
       </div>
       <div class="header-actions">
@@ -51,16 +65,27 @@
     </header>
 
     <div class="split-workspace">
-      <!-- LEFT SIDE: 3D J.A.R.V.I.S. GRAPHIC CIRCLE / CORE -->
+      <!-- ---------------------------------------------------------------------
+           SECTION 3: LEFT 70% — 3D HOLOGRAPHIC CORE STAGE
+           --------------------------------------------------------------------- -->
       <aside class="orb-panel">
+        <div class="hud-corner tl"></div>
+        <div class="hud-corner tr"></div>
+        <div class="hud-corner bl"></div>
+        <div class="hud-corner br"></div>
+        <div class="hud-reticle"></div>
+
         <div id="jarvis-3d-canvas" class="orb-canvas"></div>
+
         <div class="orb-readout">
-          <div id="orb-state-label" class="orb-state">CORE STANDBY</div>
-          <div class="orb-sub">WEBGL 3D CORE • CLIENT GPU</div>
+          <span id="orb-state-label" class="orb-state">CORE STANDBY</span>
+          <span class="orb-sub">WEBGL 3D ENGINE • CLIENT GPU</span>
         </div>
       </aside>
 
-      <!-- RIGHT SIDE: TEXT CHAT & DIRECTIVES -->
+      <!-- ---------------------------------------------------------------------
+           SECTION 4: RIGHT 30% — DIRECTIVE STREAM & COMPOSER
+           --------------------------------------------------------------------- -->
       <section class="chat-panel">
         <section id="chat-stream" class="chat-stream">
           <div class="msg system">
@@ -84,6 +109,9 @@
     </div>
   </main>
 
+  <!-- =========================================================================
+       SECTION 5: 3D ENGINE & CLIENT CONTROLLER SCRIPTS
+       ========================================================================= -->
   <script type="module" src="orb3d.js"></script>
   <script src="app.js"></script>
 </body>
