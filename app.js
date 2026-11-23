@@ -1,3 +1,6 @@
+// ===========================================================================
+// SECTION 0: DOM REFERENCES & SESSION STATE
+// ===========================================================================
 const lockScreen = document.getElementById("lock-screen");
 const consoleUI = document.getElementById("console-ui");
 const pinInput = document.getElementById("pin-input");
@@ -17,26 +20,12 @@ const statusDot = document.getElementById("status-dot");
 let voiceEnabled = true;
 
 function setOrbState(state) {
-  if (typeof window.setJarvisOrbMode === "function") {
-    window.setJarvisOrbMode(state);
-  }
+  window.setJarvisOrbMode?.(state);
 }
 
-// Restore session if already authenticated in this browser tab
-window.addEventListener("DOMContentLoaded", () => {
-  const savedPin = sessionStorage.getItem("jarvis_pin");
-  const savedUrl = sessionStorage.getItem("jarvis_api");
-  if (savedUrl) endpointInput.value = savedUrl;
-  if (savedPin) verifyAndUnlock(savedPin, endpointInput.value, true);
-});
-
-unlockBtn.addEventListener("click", () => {
-  verifyAndUnlock(pinInput.value.trim(), endpointInput.value.trim().replace(/\/$/, ""), false);
-});
-pinInput.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") unlockBtn.click();
-});
-
+// ===========================================================================
+// SECTION 1: PIN HANDSHAKE & SESSION LOCK
+// ===========================================================================
 async function verifyAndUnlock(pin, apiUrl, silent) {
   if (!pin) {
     if (!silent) authError.textContent = "ENTER SECURITY PIN";
@@ -46,7 +35,7 @@ async function verifyAndUnlock(pin, apiUrl, silent) {
   try {
     const res = await fetch(`${apiUrl}/verify_pin`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "X-Stark-Pin": pin }
+      headers: { "Content-Type": "application/json", "X-Stark-Pin": pin },
     });
     if (!res.ok) throw new Error("INVALID PIN");
 
@@ -60,8 +49,6 @@ async function verifyAndUnlock(pin, apiUrl, silent) {
     telemetryBar.textContent = `LINK: ENCRYPTED • DOCS INDEXED: ${info.docs_indexed ?? "ACTIVE"} • RTX 4060`;
     authError.textContent = "";
     setOrbState("idle");
-
-    // Trigger resize so Three.js canvas fits the newly unhidden container
     window.dispatchEvent(new Event("resize"));
   } catch (err) {
     sessionStorage.removeItem("jarvis_pin");
@@ -78,6 +65,9 @@ lockBtn.addEventListener("click", () => {
   lockScreen.classList.remove("hidden");
 });
 
+// ===========================================================================
+// SECTION 2: VOICE OUTPUT TOGGLE & BRITISH TTS ENGINE
+// ===========================================================================
 ttsToggle.addEventListener("click", () => {
   voiceEnabled = !voiceEnabled;
   if (!voiceEnabled) {
@@ -86,25 +76,6 @@ ttsToggle.addEventListener("click", () => {
   }
   ttsToggle.textContent = voiceEnabled ? "🔊 VOICE ON" : "🔇 MUTED";
 });
-
-function appendMessage(role, text, metaBadge = "") {
-  const wrapper = document.createElement("div");
-  wrapper.className = `msg ${role}`;
-  const bubble = document.createElement("div");
-  bubble.className = "bubble";
-  bubble.textContent = text;
-  wrapper.appendChild(bubble);
-
-  if (metaBadge) {
-    const badge = document.createElement("div");
-    badge.className = "badge";
-    badge.textContent = metaBadge;
-    wrapper.appendChild(badge);
-  }
-  chatStream.appendChild(wrapper);
-  chatStream.scrollTop = chatStream.scrollHeight;
-  return bubble;
-}
 
 function speakBritish(text) {
   if (!voiceEnabled || !("speechSynthesis" in window) || !text) {
@@ -128,6 +99,31 @@ function speakBritish(text) {
   window.speechSynthesis.speak(utter);
 }
 
+// ===========================================================================
+// SECTION 3: CHAT STREAM & ACTION BADGES
+// ===========================================================================
+function appendMessage(role, text, metaBadge = "") {
+  const wrapper = document.createElement("div");
+  wrapper.className = `msg ${role}`;
+  const bubble = document.createElement("div");
+  bubble.className = "bubble";
+  bubble.textContent = text;
+  wrapper.appendChild(bubble);
+
+  if (metaBadge) {
+    const badge = document.createElement("div");
+    badge.className = "badge";
+    badge.textContent = metaBadge;
+    wrapper.appendChild(badge);
+  }
+  chatStream.appendChild(wrapper);
+  chatStream.scrollTop = chatStream.scrollHeight;
+  return bubble;
+}
+
+// ===========================================================================
+// SECTION 4: DIRECTIVE DISPATCH & BACKEND UPLINK (/ask)
+// ===========================================================================
 async function sendDirective(customText = null) {
   const text = (customText ?? promptInput.value).trim();
   if (!text) return;
@@ -145,12 +141,12 @@ async function sendDirective(customText = null) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-Stark-Pin": pin
+        "X-Stark-Pin": pin,
       },
       body: JSON.stringify({
         text,
-        telemetry: { device_id: "web_hud", client_timestamp: new Date().toISOString() }
-      })
+        telemetry: { device_id: "web_hud", client_timestamp: new Date().toISOString() },
+      }),
     });
 
     if (res.status === 401) {
@@ -178,15 +174,9 @@ async function sendDirective(customText = null) {
   }
 }
 
-sendBtn.addEventListener("click", () => sendDirective());
-promptInput.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") sendDirective();
-});
-document.querySelectorAll(".chip").forEach((chip) => {
-  chip.addEventListener("click", () => sendDirective(chip.dataset.cmd));
-});
-
-// Browser Web Speech API (Voice Input on Mac / Android / Chrome)
+// ===========================================================================
+// SECTION 5: VOICE INPUT (STT) & QUICK CHIPS
+// ===========================================================================
 const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
 if (SpeechRec) {
   const rec = new SpeechRec();
@@ -205,3 +195,27 @@ if (SpeechRec) {
 } else {
   micBtn.style.display = "none";
 }
+
+// ===========================================================================
+// SECTION 6: EVENT BINDINGS & SESSION RESTORE
+// ===========================================================================
+unlockBtn.addEventListener("click", () => {
+  verifyAndUnlock(pinInput.value.trim(), endpointInput.value.trim().replace(/\/$/, ""), false);
+});
+pinInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") unlockBtn.click();
+});
+sendBtn.addEventListener("click", () => sendDirective());
+promptInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") sendDirective();
+});
+document.querySelectorAll(".chip").forEach((chip) => {
+  chip.addEventListener("click", () => sendDirective(chip.dataset.cmd));
+});
+
+window.addEventListener("DOMContentLoaded", () => {
+  const savedPin = sessionStorage.getItem("jarvis_pin");
+  const savedUrl = sessionStorage.getItem("jarvis_api");
+  if (savedUrl) endpointInput.value = savedUrl;
+  if (savedPin) verifyAndUnlock(savedPin, endpointInput.value, true);
+});
